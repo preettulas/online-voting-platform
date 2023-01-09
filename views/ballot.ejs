@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="<%= csrfToken %>" />
+    <title>Ballot | Online Voting Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css">
+    <style type="text/tailwindcss">
+        @tailwind base;
+        @tailwind components;
+        @tailwind utilities;
+        @layer components {
+            .input-field{
+                @apply border border-gray-300/50 rounded p-2 w-full bg-white text-black shadow-lg shadow-gray-300/30 text-gray-800 text-sm;
+            }
+            .red-btn{
+                @apply transition ease-linear delay-150 p-2 rounded-lg hover:text-white hover:bg-red-500 text-red-500 border-2 border-red-500;
+            }
+            .green-btn{
+                @apply transition ease-linear delay-150 p-2 rounded-lg hover:text-white hover:bg-green-500 text-green-500 border-2 border-green-500
+            }
+            .yellow-btn{
+                @apply transition ease-linear delay-150 p-2 rounded-lg hover:text-white hover:bg-yellow-500  text-yellow-500 border-2 border-yellow-500;
+            }
+            .purple-btn{
+                @apply transition ease-linear delay-150 p-2 rounded-lg hover:text-white hover:bg-purple-500  text-purple-500 border-2 border-purple-500;
+            }
+            .blue-btn{
+                @apply transition ease-linear delay-150 p-2 rounded-lg hover:text-white hover:bg-blue-500  text-blue-500 border-2 border-blue-500;
+            }
+            .orange-btn{
+                @apply transition ease-linear delay-150 p-2 rounded-lg hover:text-white hover:bg-orange-500  text-orange-500 border-2 border-orange-500;
+            }
+        }
+    </style>
+    <script>
+      const token = document
+        .querySelector(`meta[name="csrf-token"]`)
+        .getAttribute("content");
+      function updateQuestion(id) {
+        fetch(`/elections/<%= election.id %>/questions/${id}`, {})
+          .then((res) => res.json())
+          .then((question) => {
+            fetch(`/elections/<%= election.id %>/questions/${id}`, {
+              method: "put",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                _csrf: token,
+                ...question,
+                title: document.getElementById("question-title-" + id).value,
+                description: document.getElementById(
+                  "question-description-" + id
+                ).value,
+              }),
+            })
+              .then((res) => {
+                if (res.ok) {
+                  window.location.reload();
+                }
+              })
+              .catch((err) => {
+                console.error(err);
+              });
+          });
+      }
+      function deleteQuestion(id) {
+        fetch(`/elections/<%= election.id %>/questions/${id}`, {
+          method: "delete",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            _csrf: token,
+          }),
+        })
+          .then((res) => {
+            if (res.ok) {
+              window.location.reload(true);
+            }
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+      }
+      function updateOption(qid, id) {
+        fetch(
+          `/elections/<%= election.id %>/questions/${qid}/options/${id}`,
+          {}
+        )
+          .then((res) => res.json())
+          .then((option) => {
+            fetch(
+              `/elections/<%= election.id %>/questions/${qid}/options/${id}`,
+              {
+                method: "put",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  _csrf: token,
+                  ...option,
+                  title: document.getElementById("option-title-" + id).value,
+                }),
+              }
+            )
+              .then((res) => {
+                if (res.ok) {
+                  window.location.reload(true);
+                }
+              })
+              .catch((err) => {
+                console.error(err);
+              });
+          });
+      }
+      function deleteOption(qid, id) {
+        fetch(`/elections/<%= election.id %>/questions/${qid}/options/${id}`, {
+          method: "delete",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            _csrf: token,
+          }),
+        })
+          .then((res) => {
+            if (res.ok) {
+              window.location.reload(true);
+            }
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+      }
+      function deleteVoter(id) {
+        fetch(`/elections/<%= election.id %>/voters/${id}`, {
+          method: "delete",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            _csrf: token,
+          }),
+        })
+          .then((res) => {
+            if (res.ok) {
+              window.location.reload(true);
+            }
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+      }
+      function startElection() {
+        fetch(
+          `/elections/<%= election.id %>`,
+          {}
+        )
+          .then((res) => res.json())
+          .then((election) => {
+            fetch(
+              `/elections/<%= election.id %>`,
+              {
+                method: "put",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  _csrf: token,
+                  ...election,
+                  start: true
+                }),
+              }
+            )
+              .then((res) => {
+                console.log("res",res);
+                if (res.ok) {
+                  window.location.reload(true);
+                }
+              })
+              .catch((err) => {
+                console.error(err);
+              });
+          });
+      }
+      function endElection() {
+        fetch(
+          `/elections/<%= election.id %>`,
+          {}
+        )
+          .then((res) => res.json())
+          .then((election) => {
+            fetch(
+              `/elections/<%= election.id %>`,
+              {
+                method: "put",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  _csrf: token,
+                  ...election,
+                  end: true
+                }),
+              }
+            )
+              .then((res) => {
+                if (res.ok) {
+                  window.location.reload(true);
+                }
+              })
+              .catch((err) => {
+                console.error(err);
+              });
+          });
+      }
+    </script>
+  </head>
+  <body class="bg-black/70 grid place-items-center min-h-screen">
+    <div
+      class="text-white w-1/2 rounded-xl p-5 shadow-[rgba(0,_0,_0,_0.4)_0px_30px_90px] bg-black m-10"
+    >
+    <%- include( 'header.ejs', {title: "Ballot", user: user, back: {present: true, name: "Dashboard", url: "/dashboard"}} ) %>
+    <div class="flex justify-between items-center p-4">
+        <h1 class="text-3xl font-bold"><%= election.name %></h1>
+        <div class="flex gap-2">
+            <a class="purple-btn" href="/elections/<%= election.id %>/preview">
+                <i class="bi bi-binoculars-fill pr-2"></i>Preview
+            </a>
+            <% if (!election.start && !election.end) { %>
+              <a href="#" class="green-btn" onClick="startElection()"><i class="bi bi-play-circle-fill pr-2"></i>Start</a>
+            <% } %>
+            <% if (election.start) { %>
+              <a class="blue-btn" href="/elections/<%= election.id %>/results"><i class="bi-megaphone-fill pr-2"></i>Result</a>
+            <% } %>
+            <% if (election.start && !election.end) { %>
+              <a target="_blank" class="orange-btn" href="/public/<%= election.id %>/"><i class="bi-box-arrow-up-right pr-2"></i>Public Url</a>
+            <% } %>
+            <% if (election.start && !election.end) { %>
+              <a href="#" class="red-btn" onClick="endElection()"><i class="bi bi-stop-circle-fill pr-2"></i>End</a>
+            <% } %>
+        </div>
+    </div>
+    <ul>
+      <% if(messages && messages.error && messages.error.length > 0)  { %>
+        <% for(var i=0; i<messages.error.length; i++) { %>
+                <li class="my-2 p-2 text-red-500 border border-red-500 bg-red-50 rounded"><%= messages.error[i] %></li>
+        <% } %>
+      <% } %>        
+    </ul>
+    <ul>
+      <% if(messages && messages.success && messages.success.length > 0)  { %>
+        <% for(var i=0; i<messages.success.length; i++) { %>
+                <li class="my-2 p-2 text-green-500 border border-green-500 bg-green-50 rounded"><%= messages.success[i] %></li>
+        <% } %>
+      <% } %>        
+    </ul>
+    <% if (!election.start) { %>
+    <div class="border border-4 rounded-xl p-4 m-2 bg-gray-800">
+        <div class="text-4xl font-bold">Questions</div>
+        <form action="/elections/<%= election.id %>/questions" method="post">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <div class="flex py-4 gap-2 justify-between align-items">
+            <div class="flex-auto">
+              <input
+                name="title"
+                class="input-field"
+                type="text"
+                placeholder="Enter question title"
+                required
+              />
+            </div>
+            <div class="flex-auto">
+              <input
+                name="description"
+                class="input-field"
+                type="text"
+                placeholder="Enter question description"
+                required
+              />
+            </div>
+            <div class="flex-none">
+              <button
+                class="green-btn"
+                type="submit"
+              >
+              <i class="bi bi-plus-circle-fill pr-2"></i>Add
+              </button>
+            </div>
+          </div>
+        </form>
+        <ul class="flex flex-col gap-6">
+          <% for(let i = 0; i < election.Questions.length; i++) { %>
+          <li class="hover:bg-gray-600 p-4 border-2 border-white rounded-xl">
+            <div class="font-bold">
+                Question <%= i + 1 %>
+            </div>
+            <div>
+                <div class="flex py-4 gap-2">
+                <input
+                    class="flex-auto input-field"
+                    type="text"
+                    value="<%= election.Questions[i].title %>"
+                    id="question-title-<%= election.Questions[i].id %>"
+                />
+                <input
+                    class="flex-auto input-field"
+                    type="text"
+                    value="<%= election.Questions[i].description %>"
+                    id="question-description-<%= election.Questions[i].id %>"
+                />
+                  <a
+                    href="#"
+                    class="flex-none yellow-btn"
+                    onClick="updateQuestion(<%= election.Questions[i].id %>)">
+                      <i class="bi bi-pencil-fill"></i>
+                  </a>
+                  <a
+                    href="#"
+                    class="flex-none red-btn"
+                    onClick="deleteQuestion(<%= election.Questions[i].id %>)">
+                    <i class="bi bi-trash3-fill"></i>
+                  </a>
+                </div>
+            </div>
+            <div>
+                <div class="text-3xl font-bold">Options</div>
+                <form
+                    action="/elections/<%= election.id %>/questions/<%= election.Questions[i].id %>/options"
+                    method="post"
+                >
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <div class="flex py-4 gap-2 justify-between items-center">
+                        <div class="flex-auto">
+                            <input
+                                name="title"
+                                class="input-field"
+                                type="text"
+                                placeholder="Enter option title"
+                                required
+                            />
+                        </div>
+                        <div class="flex-none">
+                            <button
+                                class="green-btn"
+                                type="submit"
+                            >
+                            <i class="bi bi-plus-circle-fill pr-2"></i>Add
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <ul class="flex flex-col gap-2">
+                    <% for(let j = 0; j < election.Questions[i].Options.length; j++)
+                    { %>
+                    <li class="hover:bg-gray-500 p-2 border border-white rounded-xl">
+                        <div class="flex py-1 gap-2 justify-between items-center">
+                            <p class="flex-none font-bold">
+                                Option <%= j + 1 %>
+                            </p>
+                            <input
+                                class="flex-auto input-field"
+                                type="text"
+                                value="<%= election.Questions[i].Options[j].title %>"
+                                id="option-title-<%= election.Questions[i].Options[j].id %>"
+                            />
+                            <a
+                                class="flex-none yellow-btn"
+                                href="#"
+                                onClick="updateOption(<%= election.Questions[i].id %>, <%= election.Questions[i].Options[j].id %>)"
+                            >
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
+                            <a
+                                class="flex-none red-btn"
+                                href="#"
+                                onClick="deleteOption(<%= election.Questions[i].id %>, <%= election.Questions[i].Options[j].id %>)"
+                            >
+                                <i class="bi bi-trash3-fill"></i>
+                            </a>
+                        </div>
+                    </li>
+                    <% } %>
+              </ul>
+            </div>
+          </li>
+          <% } %>
+        </ul>
+    </div>
+    <% } %>
+      <div class="border border-4 rounded-xl p-4 m-2 bg-gray-800 mt-6">
+        <div class="text-4xl font-bold">Voters</div>
+        <form action="/elections/<%= election.id %>/voters" method="post">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <div class="flex py-4 gap-2 justify-between items-center">
+            <input
+                name="voterId"
+                class="flex-auto input-field"
+                type="text"
+                placeholder="Enter voderId"
+                required
+            />
+            <input
+                name="password"
+                class="flex-auto input-field"
+                type="password"
+                placeholder="Enter password"
+                required
+            />
+            <div class="flex-none">
+              <button
+                class="green-btn"
+                type="submit"
+              >
+              <i class="bi bi-plus-circle-fill pr-2"></i>Add
+              </button>
+            </div>
+          </div>
+        </form>
+        <ul>
+          <% for(let i = 0; i < election.Voters.length; i++) { %>
+          <li class="border border-2 rounded-xl p-2 px-4 m-2 hover:bg-gray-600">
+            <div class="flex justify-between items-center">
+              <p class="flex-auto font-semibold"><%= election.Voters[i].voterId %></p>
+              <% if(election.Voters[i].Votes.length === 0) { %>
+                <a class="flex-none red-btn" href="#" onClick="deleteVoter(<%= election.Voters[i].id %>)"
+                  >
+                  <i class="bi bi-trash3-fill pr-2"></i>Delete
+                </a>
+              <% } else { %>
+                <p class="flex-none blue-btn" 
+                  >
+                  <i class="bi bi-file-check-fill pr-2"></i>Voted
+                </p>
+              <% } %>
+            </div>
+          </li>
+          <% } %>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>
