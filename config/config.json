@@ -15,6 +15,6 @@
   },
   "production": {
     "use_env_variable": "DATABASE_URL",
-    "dialect": "preet.202104123@tulas.edu.in"
+    "dialect": "postgres"
   }
 }
