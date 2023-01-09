@@ -4,14 +4,14 @@
     "password": "updateme"
     "database": "wd-ovp-dev",
     "host": "127.0.0.1",
-    "dialect": "preet.202104123@tulas.edu.in"
+    "dialect": "postgres"
   },
   "test": {
     "username": "preet.202104123@tulas.edu.in",
     "password": "updateme",
     "database": "wd-ovp-test",
     "host": "127.0.0.1",
-    "dialect": "preet.202104123@tulas.edu.in"
+    "dialect": "postgres"
   },
   "production": {
     "use_env_variable": "DATABASE_URL",
